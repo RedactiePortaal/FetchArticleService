@@ -13,7 +13,7 @@ export class ArticlesController {
   }
 
   @Get()
-  findAll() {
+  async findAll() {
     return this.articlesService.findAll();
   }
 

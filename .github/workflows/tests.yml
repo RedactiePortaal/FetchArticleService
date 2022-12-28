@@ -1,0 +1,26 @@
+name: CI pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-22.04
+
+    strategy:
+      matrix:
+        node-version: [ 18.x ]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use NodeJS ${{matrix.node-version}}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{matrix.node-version}}
+      - run: npm i
+      - run: npm run build --if-present
+      - run: npm test

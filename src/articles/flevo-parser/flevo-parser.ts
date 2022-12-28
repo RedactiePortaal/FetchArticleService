@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { parse } from 'path';
-import { ParsedArticle } from '../viewmodel/parsed-article.viewmodel';
+import { ParsedArticleVM } from '../viewmodel/parsed-article.viewmodel';
 import { parseString } from 'xml2js';
 
 export default class FlevoParser {
@@ -28,15 +28,22 @@ export default class FlevoParser {
     }
 
     private JsonToViewModel(json: any): ParsedArticle {
-        let article : ParsedArticle = {
+        let article : ParsedArticleVM = {
             title: json.title[0],
-            description: json.description[0],
+            description: this.parseDescription(json.description[0]),
             image: json.image[0],
             category: json.category[0],
             link: json.link[0],
             pubDate: json.pubDate[0]
         };
         return article;
+    }
+
+    private parseDescription(description: string): string {
+        description = description.replace(/<\/?[^>]+(>|$)/g, ""); // removes html tags
+        description = description.replace(/(\\n)|( {2,})/g, ""); // removes newlines and multiple spaces
+        return description
+
     }
     
 

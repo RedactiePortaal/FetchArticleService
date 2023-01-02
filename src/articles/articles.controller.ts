@@ -15,14 +15,9 @@ import { UpdateArticleDto } from './dto/update-article.dto';
 export class ArticlesController {
   constructor(private readonly articlesService: ArticlesService) {}
 
-  @Post()
-  create(@Body() createArticleDto: CreateArticleDto) {
-    return this.articlesService.create(createArticleDto);
-  }
-
-  @Get()
-  async findAll() {
-    return this.articlesService.findAll();
+  @Get(':interval')
+  async findAll(@Param('interval') interval: number) {
+    return this.articlesService.findAll(interval);
   }
 
   @Get(':id')

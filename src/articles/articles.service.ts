@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import FlevoParser from './flevo-parser/flevo-parser';
-import { ParsedArticleVM } from './viewmodel/parsed-article.viewmodel';
+import { ParsedArticleDTO } from './dto/parsed-article.dto';
 
 @Injectable()
 export class ArticlesService {
@@ -10,9 +10,11 @@ export class ArticlesService {
     return 'This action adds a new article';
   }
 
-  async findAll(): Promise<ParsedArticleVM[]> {
+  async findAll(interval: number): Promise<ParsedArticleDTO[]> {
     const parser = new FlevoParser();
-    const articles: ParsedArticleVM[] = await parser.getArticles();
+    const curDate = new Date();
+    const intervalDate = new Date(curDate.getTime() - interval * 1000 * 60 * 60);
+    const articles: ParsedArticleDTO[] = await parser.getArticles(intervalDate);
     return articles;
   }
 

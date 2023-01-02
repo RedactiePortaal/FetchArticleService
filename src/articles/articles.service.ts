@@ -2,20 +2,17 @@ import { Injectable } from '@nestjs/common';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import FlevoParser from './flevo-parser/flevo-parser';
-import { ParsedArticle } from './viewmodel/parsed-article.viewmodel';
+import { ParsedArticleVM } from './viewmodel/parsed-article.viewmodel';
 
 @Injectable()
 export class ArticlesService {
-
-
   create(createArticleDto: CreateArticleDto) {
     return 'This action adds a new article';
   }
 
-  async findAll() : Promise<ParsedArticle[]>{
-    console.log('\n')
+  async findAll(): Promise<ParsedArticleVM[]> {
     const parser = new FlevoParser();
-    let articles: ParsedArticle[] = await parser.getArticles();
+    const articles: ParsedArticleVM[] = await parser.getArticles();
     return articles;
   }
 

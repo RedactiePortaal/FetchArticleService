@@ -4,13 +4,18 @@ import { ParsedArticleDTO } from './dto/parsed-article.dto';
 
 @Injectable()
 export class ArticlesService {
-  async findAll(interval: number): Promise<ParsedArticleDTO[]> {
+  async findAll(interval: number): Promise<void> {
     const parser = new FlevoParser();
     const curDate = new Date();
     const intervalDate = new Date(
       curDate.getTime() - interval * 1000 * 60 * 60,
     );
     const articles: ParsedArticleDTO[] = await parser.getArticles(intervalDate);
-    return articles;
+    await this.sendToQueue(articles);
+    return;
+  }
+
+  async sendToQueue(articles: ParsedArticleDTO[]): Promise<void> {
+    // TODO
   }
 }

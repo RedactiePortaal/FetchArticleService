@@ -1,14 +1,11 @@
 import axios from 'axios';
-import { parse } from 'path';
 import { ParsedArticleDTO } from '../dto/parsed-article.dto';
 import { parseString } from 'xml2js';
-import { title } from 'process';
 
 export default class FlevoParser {
   source = 'https://www.omroepflevoland.nl/RSS';
 
-  constructor() {}
-
+  // Retrieves the XML from the RSS source and converts it to articles
   public async getArticles(interval: Date): Promise<ParsedArticleDTO[]> {
     try {
       /* Retrieving XML from the RSS source and converting it to a collection of articles */
@@ -21,9 +18,10 @@ export default class FlevoParser {
     return [];
   }
 
+  // Converts the XML to JSON and returns all articles within the interval
   private XmlToDTOs(xml: string, interval: Date): ParsedArticleDTO[] {
     const articlesJson = this.XmlToJSON(xml);
-    
+
     // Loop the article collection and conver them to DTOs
     const articles = articlesJson.map((article: any) =>
       this.JsonToDTO(article, interval),
@@ -32,16 +30,16 @@ export default class FlevoParser {
     return articles;
   }
 
-  private JsonToDTO(json: any, interval: Date): ParsedArticleDTO {
-
+  // Converts JSON object to a DTO
+  private JsonToDTO(json: any, interval: Date): ParsedArticleDTO | void {
     // Check if the article is within the interval
     const articleDate = this.ParseDate(json.pubDate[0]);
     if (articleDate < interval) {
-      console.log("Article is older than interval");
-      return null;
+      return;
     }
+
     // Title format is "Location - Title"
-    const splitTitle = json.title[0].split(' - ');                 
+    const splitTitle = json.title[0].split(' - ');
 
     // Creating a parsed article
     const article: ParsedArticleDTO = {
@@ -57,16 +55,7 @@ export default class FlevoParser {
     return article;
   }
 
-  private ParseDate(date: string): Date {
-    const splitDate = date.split(' ');
-    const day = splitDate[1];
-    const month = splitDate[2];
-    const year = splitDate[3];
-    const time = splitDate[4];
-    const newDate = new Date(`${day} ${month} ${year} ${time}`)
-    return newDate;
-  }
-
+  // Converts the XML RSS Feed to a JSON object
   private XmlToJSON(source: string): any {
     try {
       // Predefine XML for later reference
@@ -78,14 +67,27 @@ export default class FlevoParser {
           console.log(error);
           return null;
         }
-        
+
         // parses the JSON, returns index 0 of the channel as there is only one RSS channel
         xml = result.rss.channel[0].item;
       });
-        return xml;
+      return xml;
     } catch (e) {
       console.log(e);
     }
     return '';
+  }
+
+  private ParseDate(date: string): Date {
+    // Splitting up the date into the essential parts required to create a new Date object
+    // Date object is required for the interval check
+
+    const splitDate = date.split(' ');
+    const day = splitDate[1];
+    const month = splitDate[2];
+    const year = splitDate[3];
+    const time = splitDate[4];
+
+    return new Date(`${day} ${month} ${year} ${time}`);
   }
 }

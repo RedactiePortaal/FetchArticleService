@@ -2,6 +2,7 @@ import axios from 'axios';
 import { parse } from 'path';
 import { ParsedArticleVM } from '../viewmodel/parsed-article.viewmodel';
 import { parseString } from 'xml2js';
+import { title } from 'process';
 
 export default class FlevoParser {
   source = 'https://www.omroepflevoland.nl/RSS';
@@ -28,7 +29,6 @@ export default class FlevoParser {
   }
 
   private JsonToViewModel(json: any): ParsedArticleVM {
-    console.log(json.title[0])
     const article: ParsedArticleVM = {
       title: json.title[0],
       description: this.parseDescription(json.description[0]),
@@ -41,9 +41,10 @@ export default class FlevoParser {
   }
 
   private parseDescription(description: string): string {
-    description = description.replace(/<\/?[^>]+(>|$)/g, ''); // removes html tags
-    description = description.replace(/(\\n)|( {2,})/g, ''); // removes newlines and multiple spaces
-    return description;
+    let parsed_tags = description.replace(/<[^>]+>/g, ''); // Removes all HTML tags
+    let parsed_whitespace = parsed_tags.replace(/ {2,}/g, ''); // Removes all whitespace
+    let parsed_literals = parsed_whitespace.replace(/\\/g, ''); // Removes all literals <- THIS DOES NOT WORK idk why
+    return parsed_literals;
   }
 
   private XmlToJSON(source: string): any {

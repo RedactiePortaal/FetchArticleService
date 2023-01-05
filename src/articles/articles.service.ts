@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import FlevoParser from './flevo-parser/flevo-parser';
 import { ParsedArticleDTO } from './dto/parsed-article.dto';
+import axios from 'axios';
 
 @Injectable()
 export class ArticlesService {
@@ -11,11 +12,19 @@ export class ArticlesService {
       curDate.getTime() - interval * 1000 * 60 * 60,
     );
     const articles: ParsedArticleDTO[] = await parser.getArticles(intervalDate);
-    await this.sendToQueue(articles);
+    await articles.forEach((element) => this.sendToQueue(element));
     return;
   }
 
-  async sendToQueue(articles: ParsedArticleDTO[]): Promise<void> {
-    // TODO
+  async sendToQueue(article: ParsedArticleDTO): Promise<void> {
+    await axios
+      .post('http://localhost:1880/article/process', article)
+      .then(function (response) {
+        console.log(response.status);
+      })
+      .catch(function (error) {
+        return;
+      });
+    return;
   }
 }

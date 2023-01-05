@@ -9,7 +9,8 @@ export class ArticlesService {
     const parser = new FlevoParser();
     const curDate = new Date();
     const intervalDate = new Date(
-      curDate.getTime() - interval * 1000 * 60 * 60,
+      // Milliseconds to seconds, to minutes
+      curDate.getTime() - interval * 1000 * 60,
     );
     const articles: ParsedArticleDTO[] = await parser.getArticles(intervalDate);
     await articles.forEach((element) => this.sendToQueue(element));

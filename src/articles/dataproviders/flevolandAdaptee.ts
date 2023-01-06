@@ -102,6 +102,7 @@ export class FlevolandAdaptee implements IArticleAdaptee {
     return new Date(`${day} ${month} ${year} ${time}`);
   }
 
+  // Fix something about duplicate code
   calculateInterval(interval: number): Date {
     const curDate = new Date();
     const intervalDate = new Date(

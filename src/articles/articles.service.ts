@@ -15,16 +15,17 @@ export class ArticlesService {
   ];
 
   async findWithInterval(interval: number, source: number): Promise<void> {
-    console.log(
-      'Finding all articles from source: ' +
-        source +
-        ' with minute interval: ' +
-        interval,
-    );
     const adapter = new RSSAdapter(this.dataProviders[source]);
     const articles: Article[] = await adapter.adaptee.findWithInterval(
       interval,
     );
+    await articles.forEach((element) => this.sendToQueue(element));
+    return;
+  }
+
+  async findAll(source: number): Promise<void> {
+    const adapter = new RSSAdapter(this.dataProviders[source]);
+    const articles: Article[] = await adapter.adaptee.findAll();
     await articles.forEach((element) => this.sendToQueue(element));
     return;
   }

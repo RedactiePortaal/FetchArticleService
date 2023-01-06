@@ -6,7 +6,7 @@ export class ArticlesController {
   constructor(private readonly articlesService: ArticlesService) {}
 
   @Get(':source/:interval')
-  async findAll(
+  async findWithInterval(
     @Param('interval') interval: number,
     @Param('source') source: number,
   ) {
@@ -14,7 +14,7 @@ export class ArticlesController {
   }
 
   @Get(':source')
-  async findAllWithoutInterval(@Param('source') source: number) {
-    return this.articlesService.findWithInterval(0, source);
+  async findAll(@Param('source') source: number) {
+    return this.articlesService.findAll(source);
   }
 }

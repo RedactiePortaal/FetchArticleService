@@ -5,6 +5,8 @@ import { ArticlesService } from './articles.service';
 export class ArticlesController {
   constructor(private readonly articlesService: ArticlesService) {}
 
+  // Source is the index of the data provider in the array
+  // Interval in minutes
   @Get(':source/:interval')
   async findWithInterval(
     @Param('interval') interval: number,
@@ -13,6 +15,7 @@ export class ArticlesController {
     return this.articlesService.findWithInterval(interval, source);
   }
 
+  // Source is the index of the data provider in the array
   @Get(':source')
   async findAll(@Param('source') source: number) {
     return this.articlesService.findAll(source);

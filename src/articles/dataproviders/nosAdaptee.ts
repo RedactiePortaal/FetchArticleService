@@ -4,7 +4,9 @@ import axios from 'axios';
 import { parseString } from 'xml2js';
 
 export class NOSAdaptee implements IArticleAdaptee {
+  // The RSS source
   static_url = 'https://feeds.nos.nl/';
+  // All unique endpoints
   sources = [
     'nosnieuwsalgemeen',
     'nosnieuwsbinnenland',
@@ -26,35 +28,42 @@ export class NOSAdaptee implements IArticleAdaptee {
     'nieuwsuuralgemeen',
   ];
 
+  // retrieves all articles from all sources
   async findAll(): Promise<Article[]> {
-    const articles: Article[] = await this.getArticlesPerSource(null);
+    const articles: Article[] = await this.getArticlesPerSource();
     return articles;
   }
 
+  // Retrieves all articles from all sources within the interval (in minutes)
   async findWithInterval(interval): Promise<Article[]> {
+    // Calculate the itnerval date used to filter articles on later.
     const intervalDate = this.calculateInterval(interval);
     const articles: Article[] = await this.getArticlesPerSource(intervalDate);
     return articles;
   }
 
-  private async getArticlesPerSource(interval): Promise<Article[]> {
+  // parameter not yet typed
+  private async getArticlesPerSource(interval = null): Promise<Article[]> {
     const articles: Article[] = [];
+
+    // Loop over all endpoints and retrieve the articles
     for (const source of this.sources) {
       const sourceArticles = await this.getArticles(interval, source);
       articles.push(...sourceArticles);
     }
-    console.log(articles);
     return articles;
   }
 
   private async getArticles(interval: Date, source): Promise<Article[]> {
     try {
+      // Combining static url and endpoint for full url
       const xml = await axios.get(this.static_url + source);
       const parsed = this.XmlToDTOs(xml.data, interval);
       return parsed;
     } catch (e) {
       console.log(e);
     }
+    // If something goes wrong, return an empty array
     return [];
   }
 
@@ -62,33 +71,44 @@ export class NOSAdaptee implements IArticleAdaptee {
   private XmlToDTOs(xml: string, interval: Date): Article[] {
     const articlesJson = this.XmlToJSON(xml);
     const category = articlesJson.description[0];
+
     // Loop the article collection and conver them to DTOs
     const articles = articlesJson.item.map((article: any) =>
-      this.JsonToDTO(article, interval, category),
+      this.JsonToEntity(article, interval, category),
     );
+
     return articles;
   }
 
-  private JsonToDTO(json: any, interval: Date, category): Article {
+  // Converts a single JSON article to a DTO
+  // TODO is not actually a DTO, but a model
+  private JsonToEntity(json: any, interval: Date, category): Article {
+    // Date of the article, used to check if the article is within the interval
     const articleDate = this.parseDate(json.pubDate[0]);
+
+    // Is there an interval, and is the article within the interval?
     if (interval && articleDate < interval) {
       return;
     }
+
+    // Create the article DTO
     const article: Article = {
       title: json.title[0],
+      // Cannot find a location in the RSS feed, so set to null
       location: null,
       description: json.description[0],
       image: json.enclosure[0].$.url,
       category: category,
       link: json.link[0],
-      pubDate: this.parseDate(json.pubDate[0]),
+      pubDate: articleDate,
     };
     return article;
   }
 
   private parseDate(date: string): Date {
-    // Splitting up the date into the essential parts required to create a new Date object
+    // Splitting up the date into the core parts required to create a new Date object
     // Date object is required for the interval check
+    // TODO does not yet take GMT into account
     const splitDate = date.split(' ');
     const day = splitDate[1];
     const month = splitDate[2];

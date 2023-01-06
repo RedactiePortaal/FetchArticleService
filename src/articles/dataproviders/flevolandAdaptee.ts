@@ -36,14 +36,14 @@ export class FlevolandAdaptee implements IArticleAdaptee {
 
     // Loop the article collection and conver them to DTOs
     const articles = articlesJson.map((article: any) =>
-      this.JsonToDTO(article, interval),
+      this.JsonToEntity(article, interval),
     );
 
     return articles;
   }
 
   // Converts JSON object to a DTO
-  private JsonToDTO(json: any, interval: Date): Article | void {
+  private JsonToEntity(json: any, interval: Date): Article | void {
     // Check if the article is within the interval
     const articleDate = this.parseDate(json.pubDate[0]);
     if (interval && articleDate < interval) {

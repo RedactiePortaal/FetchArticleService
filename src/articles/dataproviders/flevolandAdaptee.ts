@@ -1,12 +1,24 @@
-import axios from 'axios';
-import { ParsedArticleDTO } from '../dto/parsed-article.dto';
+import { IArticleAdaptee } from './IArticleAdaptee';
 import { parseString } from 'xml2js';
+import Article from '../entities/article.entity';
+import axios from 'axios';
 
-export default class FlevoParser {
+export class FlevolandAdaptee implements IArticleAdaptee {
   source = 'https://www.omroepflevoland.nl/RSS';
 
+  async findAll(): Promise<Article[]> {
+    const articles: Article[] = await this.getArticles(null);
+    return articles;
+  }
+
+  async findWithInterval(interval): Promise<Article[]> {
+    const intervalDate = this.calculateInterval(interval);
+    const articles: Article[] = await this.getArticles(intervalDate);
+    return articles;
+  }
+
   // Retrieves the XML from the RSS source and converts it to articles
-  public async getArticles(interval: Date): Promise<ParsedArticleDTO[]> {
+  public async getArticles(interval: Date): Promise<Article[]> {
     try {
       /* Retrieving XML from the RSS source and converting it to a collection of articles */
       const xml = await axios.get(this.source);
@@ -19,7 +31,7 @@ export default class FlevoParser {
   }
 
   // Converts the XML to JSON and returns all articles within the interval
-  private XmlToDTOs(xml: string, interval: Date): ParsedArticleDTO[] {
+  private XmlToDTOs(xml: string, interval: Date): Article[] {
     const articlesJson = this.XmlToJSON(xml);
 
     // Loop the article collection and conver them to DTOs
@@ -31,18 +43,17 @@ export default class FlevoParser {
   }
 
   // Converts JSON object to a DTO
-  private JsonToDTO(json: any, interval: Date): ParsedArticleDTO | void {
+  private JsonToDTO(json: any, interval: Date): Article | void {
     // Check if the article is within the interval
     const articleDate = this.ParseDate(json.pubDate[0]);
-    if (articleDate < interval) {
+    if (interval && articleDate < interval) {
       return;
     }
-
     // Title format is "Location - Title"
     const splitTitle = json.title[0].split(' - ');
 
     // Creating a parsed article
-    const article: ParsedArticleDTO = {
+    const article: Article = {
       location: splitTitle[0],
       title: splitTitle[1],
       description: json.description[0],
@@ -89,5 +100,14 @@ export default class FlevoParser {
     const time = splitDate[4];
 
     return new Date(`${day} ${month} ${year} ${time}`);
+  }
+
+  calculateInterval(interval: number): Date {
+    const curDate = new Date();
+    const intervalDate = new Date(
+      // Milliseconds to seconds, to minutes
+      curDate.getTime() - interval * 1000 * 60,
+    );
+    return intervalDate;
   }
 }

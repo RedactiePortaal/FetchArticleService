@@ -5,8 +5,16 @@ import { ArticlesService } from './articles.service';
 export class ArticlesController {
   constructor(private readonly articlesService: ArticlesService) {}
 
-  @Get(':interval')
-  async findAll(@Param('interval') interval: number) {
-    return this.articlesService.findAll(interval);
+  @Get(':source/:interval')
+  async findAll(
+    @Param('interval') interval: number,
+    @Param('source') source: number,
+  ) {
+    return this.articlesService.findWithInterval(interval, source);
+  }
+
+  @Get(':source')
+  async findAllWithoutInterval(@Param('source') source: number) {
+    return this.articlesService.findWithInterval(0, source);
   }
 }

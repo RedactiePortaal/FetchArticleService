@@ -1,23 +1,36 @@
 import { Injectable } from '@nestjs/common';
-import FlevoParser from './flevo-parser/flevo-parser';
-import { ParsedArticleDTO } from './dto/parsed-article.dto';
 import axios from 'axios';
+import { IArticleAdaptee } from './dataproviders/IArticleAdaptee';
+import Article from './entities/article.entity';
+import { FlevolandAdaptee } from './dataproviders/flevolandAdaptee';
+import { NOSAdaptee } from './dataproviders/nosAdaptee';
+import RSSAdapter from './dataproviders/rssadapter';
 
 @Injectable()
 export class ArticlesService {
-  async findAll(interval: number): Promise<void> {
-    const parser = new FlevoParser();
-    const curDate = new Date();
-    const intervalDate = new Date(
-      // Milliseconds to seconds, to minutes
-      curDate.getTime() - interval * 1000 * 60,
+  // Create an array of all the data providers
+  private readonly dataProviders: IArticleAdaptee[] = [
+    new FlevolandAdaptee(),
+    new NOSAdaptee(),
+  ];
+
+  async findWithInterval(interval: number, source: number): Promise<void> {
+    console.log(
+      'Finding all articles from source: ' +
+        source +
+        ' with minute interval: ' +
+        interval,
     );
-    const articles: ParsedArticleDTO[] = await parser.getArticles(intervalDate);
+    const adapter = new RSSAdapter(this.dataProviders[source]);
+    const articles: Article[] = await adapter.adaptee.findWithInterval(
+      interval,
+    );
     await articles.forEach((element) => this.sendToQueue(element));
     return;
   }
 
-  async sendToQueue(article: ParsedArticleDTO): Promise<void> {
+  async sendToQueue(article: Article): Promise<void> {
+    console.log('Sending article to queue: ' + article.title);
     await axios
       .post('http://localhost:1880/article/process', article)
       .then(function (response) {

@@ -3,7 +3,7 @@ export interface ParsedArticleDTO {
   location: string;
   description: string;
   image: string | null;
-  category: string;
+  category: string | null;
   link: string;
   pubDate: Date;
 }

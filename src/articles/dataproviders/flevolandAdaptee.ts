@@ -45,7 +45,7 @@ export class FlevolandAdaptee implements IArticleAdaptee {
   // Converts JSON object to a DTO
   private JsonToDTO(json: any, interval: Date): Article | void {
     // Check if the article is within the interval
-    const articleDate = this.ParseDate(json.pubDate[0]);
+    const articleDate = this.parseDate(json.pubDate[0]);
     if (interval && articleDate < interval) {
       return;
     }
@@ -60,7 +60,7 @@ export class FlevolandAdaptee implements IArticleAdaptee {
       image: json.image[0],
       category: json.category[0],
       link: json.link[0],
-      pubDate: this.ParseDate(json.pubDate[0]),
+      pubDate: articleDate,
     };
 
     return article;
@@ -89,7 +89,7 @@ export class FlevolandAdaptee implements IArticleAdaptee {
     return '';
   }
 
-  private ParseDate(date: string): Date {
+  private parseDate(date: string): Date {
     // Splitting up the date into the essential parts required to create a new Date object
     // Date object is required for the interval check
 
@@ -103,7 +103,7 @@ export class FlevolandAdaptee implements IArticleAdaptee {
   }
 
   // Fix something about duplicate code
-  calculateInterval(interval: number): Date {
+  private calculateInterval(interval: number): Date {
     const curDate = new Date();
     const intervalDate = new Date(
       // Milliseconds to seconds, to minutes

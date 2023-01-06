@@ -31,11 +31,14 @@ export class ArticlesService {
   }
 
   async sendToQueue(article: Article): Promise<void> {
-    console.log('Sending article to queue: ' + article.title);
+    if (article == undefined) {
+      console.log('Article is undefined');
+      return;
+    }
     await axios
       .post('http://localhost:1880/article/process', article)
       .then(function (response) {
-        console.log(response.status);
+        // console.log(response.status);
       })
       .catch(function (error) {
         return;

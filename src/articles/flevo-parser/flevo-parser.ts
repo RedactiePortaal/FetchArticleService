@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from '@nestjs/axios';
 import { ParsedArticleDTO } from '../dto/parsed-article.dto';
 import { parseString } from 'xml2js';
 

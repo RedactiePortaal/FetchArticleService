@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import FlevoParser from './flevo-parser/flevo-parser';
 import { ParsedArticleDTO } from './dto/parsed-article.dto';
-import axios from 'axios';
+import axios from '@nestjs/axios';
 
 @Injectable()
 export class ArticlesService {

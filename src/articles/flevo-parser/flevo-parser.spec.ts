@@ -1,4 +1,4 @@
-import { FlevoParser } from './flevo-parser';
+import FlevoParser from './flevo-parser';
 
 describe('FlevoParser', () => {
   it('should be defined', () => {

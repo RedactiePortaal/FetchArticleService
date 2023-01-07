@@ -1,15 +1,18 @@
 import axios from '@nestjs/axios';
 import { ParsedArticleDTO } from '../dto/parsed-article.dto';
 import { parseString } from 'xml2js';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 
 export default class FlevoParser {
+  constructor(private readonly httpService: HttpService) {}
   source = 'https://www.omroepflevoland.nl/RSS';
 
   // Retrieves the XML from the RSS source and converts it to articles
   public async getArticles(interval: Date): Promise<ParsedArticleDTO[]> {
     try {
       /* Retrieving XML from the RSS source and converting it to a collection of articles */
-      const xml = await axios.get(this.source);
+      const xml = await firstValueFrom(this.httpService.get(this.source));
       const parsed = this.XmlToDTOs(xml.data, interval);
       return parsed;
     } catch {

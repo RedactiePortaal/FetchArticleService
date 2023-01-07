@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import FlevoParser from './flevo-parser/flevo-parser';
 import { ParsedArticleDTO } from './dto/parsed-article.dto';
-import axios from '@nestjs/axios';
+import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class ArticlesService {
+  constructor(private readonly httpService: HttpService) {}
   async findAll(interval: number): Promise<void> {
-    const parser = new FlevoParser();
+    const parser = new FlevoParser(this.httpService);
     const curDate = new Date();
     const intervalDate = new Date(
       // Milliseconds to seconds, to minutes
@@ -18,14 +19,10 @@ export class ArticlesService {
   }
 
   async sendToQueue(article: ParsedArticleDTO): Promise<void> {
-    await axios
-      .post('http://localhost:1880/article/process', article)
-      .then(function (response) {
-        console.log(response.status);
-      })
-      .catch(function (error) {
-        return;
-      });
+    await this.httpService.post(
+      'http://localhost:1880/article/process',
+      article,
+    );
     return;
   }
 }

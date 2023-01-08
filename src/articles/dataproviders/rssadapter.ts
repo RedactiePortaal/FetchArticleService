@@ -1,13 +1,14 @@
 import { IArticleAdaptee } from './IArticleAdaptee';
+import Article from '../entities/article.entity';
 
 class RSSAdapter {
   constructor(private readonly adaptee: IArticleAdaptee) {}
 
-  findWithInterval = (interval: number) => {
+  findWithInterval = async (interval: number): Promise<Article[]> => {
     return this.adaptee.findWithInterval(interval);
   };
 
-  findAll = () => {
+  findAll = async (): Promise<Article[]> => {
     return this.adaptee.findAll();
   };
 }

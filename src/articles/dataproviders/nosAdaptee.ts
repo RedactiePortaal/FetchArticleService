@@ -3,7 +3,9 @@ import Article from '../entities/article.entity';
 import { parseString } from 'xml2js';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class NOSAdaptee implements IArticleAdaptee {
   // The RSS source
   static_url = 'https://feeds.nos.nl/';
@@ -38,7 +40,7 @@ export class NOSAdaptee implements IArticleAdaptee {
 
   // Retrieves all articles from all sources within the interval (in minutes)
   async findWithInterval(interval): Promise<Article[]> {
-    // Calculate the itnerval date used to filter articles on later.
+    // Calculate the interval date used to filter articles on later.
     const intervalDate = this.calculateInterval(interval);
     return await this.getArticlesPerSource(intervalDate);
   }

@@ -1,7 +1,7 @@
-import { HttpModule } from '@nestjs/axios';
+import { Module } from '@nestjs/common';
 import { ArticlesService } from './articles.service';
 import { ArticlesController } from './articles.controller';
-import { Module } from '@nestjs/common/decorators';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [HttpModule],

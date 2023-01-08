@@ -1,31 +1,57 @@
 import { Injectable } from '@nestjs/common';
-import FlevoParser from './flevo-parser/flevo-parser';
-import { ParsedArticleDTO } from './dto/parsed-article.dto';
+import { IArticleAdaptee } from './dataproviders/IArticleAdaptee';
+import Article from './entities/article.entity';
+import { FlevolandAdaptee } from './dataproviders/flevolandAdaptee';
+import { NOSAdaptee } from './dataproviders/nosAdaptee';
+import RSSAdapter from './dataproviders/rssadapter';
 import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class ArticlesService {
-  constructor(private readonly httpService: HttpService) {}
+  private readonly dataProviders: IArticleAdaptee[] = [];
 
-  async findAll(interval: number): Promise<void> {
-    const parser = new FlevoParser(this.httpService);
-    const curDate = new Date();
-    const intervalDate = new Date(
-      // Milliseconds to seconds, to minutes
-      curDate.getTime() - interval * 1000 * 60,
-    );
-    const articles: ParsedArticleDTO[] = await parser.getArticles(intervalDate);
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly flevolandAdaptee: FlevolandAdaptee,
+    private readonly nosAdaptee: NOSAdaptee,
+  ) {
+    this.dataProviders.push(flevolandAdaptee, nosAdaptee);
+  }
+
+  // Method for retrieving all articles from a specific source, with a given interval
+  async findWithInterval(interval: number, source: number): Promise<void> {
+    const adapter = new RSSAdapter(this.dataProviders[source]);
+    const articles: Article[] = await adapter.findWithInterval(interval);
+
+    // Send each element seperately to prevent flooding the articleprocessor
     await articles.forEach((element) => this.sendToQueue(element));
     return;
   }
 
-  async sendToQueue(article: ParsedArticleDTO): Promise<void> {
-    await firstValueFrom(
-      this.httpService.post('http://localhost:1880/article/process', article),
-    ).catch((error) => {
-      console.log(error);
-    });
+  // Method for retrieving all articles from a specific source
+  async findAll(source: number): Promise<void> {
+    const adapter = new RSSAdapter(this.dataProviders[source]);
+    const articles: Article[] = await adapter.findAll();
+
+    // Send each element seperately to prevent flooding the articleprocessor
+    await articles.forEach((element) => this.sendToQueue(element));
+    return;
+  }
+
+  // Method for sending an article to the articleprocessor
+  async sendToQueue(article: Article): Promise<void> {
+    if (article === undefined) {
+      console.log('Article is undefined');
+      return;
+    }
+
+    // Send the article to the articleprocessor
+    await this.httpService.post(
+      'http://localhost:1880/article/process',
+      article,
+    );
+
+    // No return needed, articles are sent to the articleprocessor
     return;
   }
 }

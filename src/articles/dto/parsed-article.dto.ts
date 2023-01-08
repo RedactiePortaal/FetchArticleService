@@ -1,9 +1,9 @@
 export interface ParsedArticleDTO {
-  title: string;
-  location: string;
+  category: string;
   description: string;
   image: string | null;
-  category: string;
   link: string;
+  location: string;
   pubDate: Date;
+  title: string;
 }

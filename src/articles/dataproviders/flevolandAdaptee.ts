@@ -5,8 +5,8 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 
 export class FlevolandAdaptee implements IArticleAdaptee {
-  source = 'https://www.omroepflevoland.nl/RSS';
 
+  source = 'https://www.omroepflevoland.nl/RSS';
   constructor(private readonly httpService: HttpService) {}
 
   async findAll(): Promise<Article[]> {

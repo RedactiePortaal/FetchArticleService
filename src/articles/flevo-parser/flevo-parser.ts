@@ -34,7 +34,7 @@ export default class FlevoParser {
   }
 
   // Converts JSON object to a DTO
-  private JsonToDTO(json: any, interval: Date): ParsedArticleDTO | void {
+  private JsonToDTO(json: any, interval: Date): ParsedArticleDTO | null {
     // Check if the article is within the interval
     const articleDate = this.ParseDate(json.pubDate[0]);
     if (articleDate < interval) {
@@ -70,7 +70,6 @@ export default class FlevoParser {
           console.log(error);
           return null;
         }
-
         // parses the JSON, returns index 0 of the channel as there is only one RSS channel
         xml = result.rss.channel[0].item;
       });

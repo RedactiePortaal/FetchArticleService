@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import FlevoParser from './flevo-parser/flevo-parser';
 import { ParsedArticleDTO } from './dto/parsed-article.dto';
 import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class ArticlesService {
@@ -19,10 +20,11 @@ export class ArticlesService {
   }
 
   async sendToQueue(article: ParsedArticleDTO): Promise<void> {
-    await this.httpService.post(
-      'http://localhost:1880/article/process',
-      article,
-    );
+    await firstValueFrom(
+      this.httpService.post('http://localhost:1880/article/process', article),
+    ).catch((error) => {
+      console.log(error);
+    });
     return;
   }
 }

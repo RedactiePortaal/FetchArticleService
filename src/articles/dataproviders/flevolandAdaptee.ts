@@ -3,9 +3,10 @@ import { parseString } from 'xml2js';
 import Article from '../entities/article.entity';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class FlevolandAdaptee implements IArticleAdaptee {
-
   source = 'https://www.omroepflevoland.nl/RSS';
   constructor(private readonly httpService: HttpService) {}
 
@@ -41,11 +42,12 @@ export class FlevolandAdaptee implements IArticleAdaptee {
   }
 
   // Converts JSON object to a DTO
-  private JsonToEntity(json: any, interval: Date): Article | void {
+  private JsonToEntity(json: any, interval: Date): Article | null {
     // Check if the article is within the interval
     const articleDate = this.parseDate(json.pubDate[0]);
+
     if (interval && articleDate < interval) {
-      return;
+      return null;
     }
     // Title format is "Location - Title"
     const splitTitle = json.title[0].split(' - ');

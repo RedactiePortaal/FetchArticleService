@@ -5,6 +5,7 @@ import { FlevolandAdaptee } from './dataproviders/flevolandAdaptee';
 import { NOSAdaptee } from './dataproviders/nosAdaptee';
 import RSSAdapter from './dataproviders/rssadapter';
 import { HttpService } from '@nestjs/axios';
+import * as process from 'process';
 
 @Injectable()
 export class ArticlesService {
@@ -47,7 +48,9 @@ export class ArticlesService {
 
     // Send the article to the articleprocessor
     await this.httpService.post(
-      'http://localhost:1880/article/process',
+      `http://${
+        process.env.PROCESS_ARTICLE_SERVICE_URL || 'localhost'
+      }/article/process`,
       article,
     );
 

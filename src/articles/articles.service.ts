@@ -7,6 +7,7 @@ import { firstValueFrom } from 'rxjs';
 @Injectable()
 export class ArticlesService {
   constructor(private readonly httpService: HttpService) {}
+
   async findAll(interval: number): Promise<void> {
     const parser = new FlevoParser(this.httpService);
     const curDate = new Date();

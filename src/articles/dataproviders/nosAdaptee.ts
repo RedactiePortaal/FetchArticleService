@@ -81,7 +81,6 @@ export class NOSAdaptee implements IArticleAdaptee {
   }
 
   // Converts a single JSON article to a DTO
-  // TODO is not actually a DTO, but a model
   private JsonToEntity(json: any, interval: Date, category): Article {
     // Date of the article, used to check if the article is within the interval
     const articleDate = this.parseDate(json.pubDate[0]);
@@ -107,7 +106,6 @@ export class NOSAdaptee implements IArticleAdaptee {
   private parseDate(date: string): Date {
     // Splitting up the date into the core parts required to create a new Date object
     // Date object is required for the interval check
-    // TODO does not yet take GMT into account
     const splitDate = date.split(' ');
     const day = splitDate[1];
     const month = splitDate[2];

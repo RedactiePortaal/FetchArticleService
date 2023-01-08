@@ -38,7 +38,7 @@ export class ArticlesService {
 
   // Method for sending an article to the articleprocessor
   async sendToQueue(article: Article): Promise<void> {
-    if (article == undefined) {
+    if (article === undefined) {
       console.log('Article is undefined');
       return;
     }

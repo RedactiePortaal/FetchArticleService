@@ -1,7 +1,8 @@
 import { IArticleAdaptee } from './IArticleAdaptee';
 import Article from '../entities/article.entity';
-import axios from 'axios';
 import { parseString } from 'xml2js';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 
 export class NOSAdaptee implements IArticleAdaptee {
   // The RSS source
@@ -28,18 +29,18 @@ export class NOSAdaptee implements IArticleAdaptee {
     'nieuwsuuralgemeen',
   ];
 
+  constructor(private readonly httpService: HttpService) {}
+
   // retrieves all articles from all sources
   async findAll(): Promise<Article[]> {
-    const articles: Article[] = await this.getArticlesPerSource();
-    return articles;
+    return await this.getArticlesPerSource();
   }
 
   // Retrieves all articles from all sources within the interval (in minutes)
   async findWithInterval(interval): Promise<Article[]> {
     // Calculate the itnerval date used to filter articles on later.
     const intervalDate = this.calculateInterval(interval);
-    const articles: Article[] = await this.getArticlesPerSource(intervalDate);
-    return articles;
+    return await this.getArticlesPerSource(intervalDate);
   }
 
   // parameter not yet typed
@@ -57,9 +58,10 @@ export class NOSAdaptee implements IArticleAdaptee {
   private async getArticles(interval: Date, source): Promise<Article[]> {
     try {
       // Combining static url and endpoint for full url
-      const xml = await axios.get(this.static_url + source);
-      const parsed = this.XmlToDTOs(xml.data, interval);
-      return parsed;
+      const xml = await firstValueFrom(
+        this.httpService.get(this.static_url + source),
+      );
+      return this.XmlToDTOs(xml.data, interval);
     } catch (e) {
       console.log(e);
     }
@@ -73,11 +75,9 @@ export class NOSAdaptee implements IArticleAdaptee {
     const category = articlesJson.description[0];
 
     // Loop the article collection and conver them to DTOs
-    const articles = articlesJson.item.map((article: any) =>
+    return articlesJson.item.map((article: any) =>
       this.JsonToEntity(article, interval, category),
     );
-
-    return articles;
   }
 
   // Converts a single JSON article to a DTO
@@ -92,7 +92,7 @@ export class NOSAdaptee implements IArticleAdaptee {
     }
 
     // Create the article DTO
-    const article: Article = {
+    return {
       title: json.title[0],
       // Cannot find a location in the RSS feed, so set to null
       location: null,
@@ -102,7 +102,6 @@ export class NOSAdaptee implements IArticleAdaptee {
       link: json.link[0],
       pubDate: articleDate,
     };
-    return article;
   }
 
   private parseDate(date: string): Date {
@@ -117,6 +116,7 @@ export class NOSAdaptee implements IArticleAdaptee {
 
     return new Date(`${day} ${month} ${year} ${time}`);
   }
+
   // Converts the XML RSS Feed to a JSON object
   private XmlToJSON(source: string): any {
     try {
@@ -143,10 +143,9 @@ export class NOSAdaptee implements IArticleAdaptee {
   // Fix something about duplicate code
   private calculateInterval(interval: number): Date {
     const curDate = new Date();
-    const intervalDate = new Date(
+    return new Date(
       // Milliseconds to seconds, to minutes
       curDate.getTime() - interval * 1000 * 60,
     );
-    return intervalDate;
   }
 }

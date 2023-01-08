@@ -8,7 +8,6 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class FlevolandAdaptee implements IArticleAdaptee {
   source = 'https://www.omroepflevoland.nl/RSS';
-
   constructor(private readonly httpService: HttpService) {}
 
   async findAll(): Promise<Article[]> {

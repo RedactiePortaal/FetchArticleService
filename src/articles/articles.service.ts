@@ -6,6 +6,7 @@ import { NOSAdaptee } from './dataproviders/nosAdaptee';
 import RSSAdapter from './dataproviders/rssadapter';
 import { HttpService } from '@nestjs/axios';
 import * as process from 'process';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class ArticlesService {
@@ -25,7 +26,10 @@ export class ArticlesService {
     const articles: Article[] = await adapter.findWithInterval(interval);
 
     // Send each element seperately to prevent flooding the articleprocessor
-    await articles.forEach((element) => this.sendToQueue(element));
+    for (const article of articles) {
+      await this.sendToQueue(article);
+    }
+
     return;
   }
 
@@ -47,11 +51,13 @@ export class ArticlesService {
     }
 
     // Send the article to the articleprocessor
-    await this.httpService.post(
-      `http://${
-        process.env.PROCESS_ARTICLE_SERVICE_URL || 'localhost'
-      }/article/process`,
-      article,
+    await firstValueFrom(
+      this.httpService.post(
+        `http://${
+          process.env.PROCESS_ARTICLE_SERVICE_URL || 'localhost'
+        }/article/process`,
+        article,
+      ),
     );
 
     // No return needed, articles are sent to the articleprocessor

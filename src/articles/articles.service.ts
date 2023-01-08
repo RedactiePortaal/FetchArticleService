@@ -26,6 +26,7 @@ export class ArticlesService {
     const articles: Article[] = await adapter.findWithInterval(interval);
 
     // Send each element seperately to prevent flooding the articleprocessor
+
     for (const article of articles) {
       await this.sendToQueue(article);
     }
@@ -58,7 +59,7 @@ export class ArticlesService {
         }/article/process`,
         article,
       ),
-    );
+    ).catch((e) => console.log(e));
 
     // No return needed, articles are sent to the articleprocessor
     return;

@@ -8,7 +8,7 @@ class RSSAdapter {
     return this.adaptee.findWithInterval(interval);
   };
 
-  findAll = async (): Promise<Article[]> => {
+  findAll = async (): Promise<Article[]> => 
     return this.adaptee.findAll();
   };
 }

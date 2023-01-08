@@ -1,33 +1,31 @@
 import { Injectable } from '@nestjs/common';
-import { CreateArticleDto } from './dto/create-article.dto';
-import { UpdateArticleDto } from './dto/update-article.dto';
 import FlevoParser from './flevo-parser/flevo-parser';
-import { ParsedArticle } from './viewmodel/parsed-article.viewmodel';
+import { ParsedArticleDTO } from './dto/parsed-article.dto';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class ArticlesService {
+  constructor(private readonly httpService: HttpService) {}
 
-
-  create(createArticleDto: CreateArticleDto) {
-    return 'This action adds a new article';
+  async findAll(interval: number): Promise<void> {
+    const parser = new FlevoParser(this.httpService);
+    const curDate = new Date();
+    const intervalDate = new Date(
+      // Milliseconds to seconds, to minutes
+      curDate.getTime() - interval * 1000 * 60,
+    );
+    const articles: ParsedArticleDTO[] = await parser.getArticles(intervalDate);
+    await articles.forEach((element) => this.sendToQueue(element));
+    return;
   }
 
-  async findAll() : Promise<ParsedArticle[]>{
-    console.log('\n')
-    const parser = new FlevoParser();
-    let articles: ParsedArticle[] = await parser.getArticles();
-    return articles;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} article`;
-  }
-
-  update(id: number, updateArticleDto: UpdateArticleDto) {
-    return `This action updates a #${id} article`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} article`;
+  async sendToQueue(article: ParsedArticleDTO): Promise<void> {
+    await firstValueFrom(
+      this.httpService.post('http://localhost:1880/article/process', article),
+    ).catch((error) => {
+      console.log(error);
+    });
+    return;
   }
 }

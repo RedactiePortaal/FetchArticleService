@@ -96,7 +96,7 @@ export class NOSAdaptee implements IArticleAdaptee {
     return {
       title: json.title[0],
       // Cannot find a location in the RSS feed, so set to null
-      location: null,
+      location: 'Unknown',
       description: json.description[0],
       image: json.enclosure[0].$.url,
       category: category,

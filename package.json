@@ -1,6 +1,6 @@
 {
   "name": "fetch-article-service",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "description": "",
   "author": "",
   "private": true,
@@ -26,6 +26,7 @@
     "@nestjs/core": "^8.0.0",
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^8.0.0",
+    "@types/xml2js": "^0.4.11",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",

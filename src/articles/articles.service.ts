@@ -8,13 +8,15 @@ import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class ArticlesService {
-  constructor(private readonly httpService: HttpService) {}
+  private readonly dataProviders: IArticleAdaptee[] = [];
 
-  // Create an array of all the data providers
-  private readonly dataProviders: IArticleAdaptee[] = [
-    new FlevolandAdaptee(),
-    new NOSAdaptee(),
-  ];
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly flevolandAdaptee: FlevolandAdaptee,
+    private readonly nosAdaptee: NOSAdaptee,
+  ) {
+    this.dataProviders.push(flevolandAdaptee, nosAdaptee);
+  }
 
   // Method for retrieving all articles from a specific source, with a given interval
   async findWithInterval(interval: number, source: number): Promise<void> {

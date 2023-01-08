@@ -1,11 +1,15 @@
 import { IArticleAdaptee } from './IArticleAdaptee';
 
 class RSSAdapter {
-  public adaptee: IArticleAdaptee;
+  constructor(private readonly adaptee: IArticleAdaptee) {}
 
-  constructor(adaptee: IArticleAdaptee) {
-    this.adaptee = adaptee;
-  }
+  findWithInterval = (interval: number) => {
+    return this.adaptee.findWithInterval(interval);
+  };
+
+  findAll = () => {
+    return this.adaptee.findAll();
+  };
 }
 
 export default RSSAdapter;

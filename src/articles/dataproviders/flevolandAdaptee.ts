@@ -5,9 +5,9 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 
 export class FlevolandAdaptee implements IArticleAdaptee {
-  constructor(private readonly httpService: HttpService) {}
 
   source = 'https://www.omroepflevoland.nl/RSS';
+  constructor(private readonly httpService: HttpService) {}
 
   async findAll(): Promise<Article[]> {
     return await this.getArticles(null);
@@ -24,8 +24,8 @@ export class FlevolandAdaptee implements IArticleAdaptee {
       /* Retrieving XML from the RSS source and converting it to a collection of articles */
       const xml = await firstValueFrom(this.httpService.get(this.source));
       return this.XmlToDTOs(xml.data, interval);
-    } catch {
-      console.log('Error');
+    } catch (e) {
+      console.log(e);
     }
     return [];
   }

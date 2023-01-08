@@ -26,7 +26,6 @@ export class ArticlesService {
     const articles: Article[] = await adapter.findWithInterval(interval);
 
     // Send each element seperately to prevent flooding the articleprocessor
-
     for (const article of articles) {
       await this.sendToQueue(article);
     }

@@ -58,7 +58,7 @@ export class ArticlesService {
         }/article/process`,
         article,
       ),
-    );
+    ).catch((e) => console.log(e));
 
     // No return needed, articles are sent to the articleprocessor
     return;

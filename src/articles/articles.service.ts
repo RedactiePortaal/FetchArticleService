@@ -67,7 +67,7 @@ export class ArticlesService {
             throw error;
           }),
         ),
-    );
+    ).catch();
 
     // No return needed, articles are sent to the articleprocessor
     return;

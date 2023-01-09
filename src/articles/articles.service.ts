@@ -53,21 +53,23 @@ export class ArticlesService {
     console.log('sending article: ', article);
 
     // Send the article to the articleprocessor
-    await firstValueFrom(
-      this.httpService
-        .post(
-          `http://${
-            process.env.PROCESS_ARTICLE_SERVICE_URL || 'localhost'
-          }/article/process`,
-          article,
-        )
-        .pipe(
-          catchError((error) => {
-            console.log(error);
-            throw error;
-          }),
-        ),
-    ).catch();
+    try {
+      await firstValueFrom(
+        this.httpService
+          .post(
+            `http://${
+              process.env.PROCESS_ARTICLE_SERVICE_URL || 'localhost'
+            }/article/process`,
+            article,
+          )
+          .pipe(
+            catchError((error) => {
+              console.log(error);
+              throw 'error';
+            }),
+          ),
+      );
+    } catch (e) {}
 
     // No return needed, articles are sent to the articleprocessor
     return;

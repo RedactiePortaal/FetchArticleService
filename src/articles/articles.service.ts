@@ -45,10 +45,12 @@ export class ArticlesService {
 
   // Method for sending an article to the articleprocessor
   async sendToQueue(article: Article): Promise<void> {
-    if (article === undefined) {
-      console.log('Article is undefined');
+    if (article == null) {
+      console.log('Article is undefined or null');
       return;
     }
+
+    console.log('sending article: ', article);
 
     // Send the article to the articleprocessor
     await firstValueFrom(

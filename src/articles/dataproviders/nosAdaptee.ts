@@ -89,7 +89,7 @@ export class NOSAdaptee implements IArticleAdaptee {
 
     // Is there an interval, and is the article within the interval?
     if (interval && articleDate < interval) {
-      return;
+      return null;
     }
 
     // Create the article DTO

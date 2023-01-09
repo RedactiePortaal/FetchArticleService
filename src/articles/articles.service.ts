@@ -6,7 +6,7 @@ import { NOSAdaptee } from './dataproviders/nosAdaptee';
 import RSSAdapter from './dataproviders/rssadapter';
 import { HttpService } from '@nestjs/axios';
 import * as process from 'process';
-import { firstValueFrom } from 'rxjs';
+import { catchError, firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class ArticlesService {
@@ -45,20 +45,29 @@ export class ArticlesService {
 
   // Method for sending an article to the articleprocessor
   async sendToQueue(article: Article): Promise<void> {
-    if (article === undefined) {
-      console.log('Article is undefined');
+    if (article == null) {
+      console.log('Article is undefined or null');
       return;
     }
 
+    console.log('sending article: ', article);
+
     // Send the article to the articleprocessor
     await firstValueFrom(
-      this.httpService.post(
-        `http://${
-          process.env.PROCESS_ARTICLE_SERVICE_URL || 'localhost'
-        }/article/process`,
-        article,
-      ),
-    ).catch((e) => console.log(e));
+      this.httpService
+        .post(
+          `http://${
+            process.env.PROCESS_ARTICLE_SERVICE_URL || 'localhost'
+          }/article/process`,
+          article,
+        )
+        .pipe(
+          catchError((error) => {
+            console.log(error);
+            throw error;
+          }),
+        ),
+    );
 
     // No return needed, articles are sent to the articleprocessor
     return;
